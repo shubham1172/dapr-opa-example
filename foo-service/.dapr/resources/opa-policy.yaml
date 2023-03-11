@@ -1,0 +1,39 @@
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: opa-policy
+spec:
+  type: middleware.http.opa
+  version: v1
+  metadata:
+    - name: includedHeaders
+      value: "authorization"
+    - name: defaultStatus
+      value: 403
+    - name: readBody
+      value: "false"
+    - name: rego
+      value: |
+        package http
+
+        import future.keywords.if
+        import future.keywords.in
+
+        default allow := false
+
+        allow if claims.username in admin_users
+
+        # admin_users is a set of usernames.
+        admin_users := {
+          "alice",
+          "bob",
+        }
+
+        # set additional headers to be included in the response
+        claims := payload if {
+          v := input.attributes.request.http.headers.authorization
+          startswith(v, "Bearer ")
+          t := substring(v, count("Bearer "), -1)
+          io.jwt.verify_hs256(t, "B41BD5F462719C6D6118E673A2389")
+          [_, payload, _] := io.jwt.decode(t)
+        }
