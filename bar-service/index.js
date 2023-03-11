@@ -6,29 +6,29 @@ const app = express()
 const port = 50002
 
 const fooServiceAppId = "foo-service";
-const fooServiceRootMethod = "root";
-const fooServiceSecretMethod = "secret";
+const fooServiceFetchMethod = "fetch";
 
 async function main() {
     const client = new DaprClient();
 
-    app.get('/root', async (_req, res) => {
+    app.get('/fetch', async (_req, res) => {
         try {
-            const daprResponse = await client.invoker.invoke(fooServiceAppId, fooServiceRootMethod, HttpMethod.POST, undefined);
+            const daprResponse = await client.invoker.invoke(fooServiceAppId, fooServiceFetchMethod, HttpMethod.POST, undefined);
             res.send(daprResponse);
         } catch (e) {
             console.log(e);
-            res.status(500).send(e);
+            res.status(403).send(e);
         }
     });
 
-    app.get('/secret', async (_req, res) => {
+    app.get('/fetch-securely', async (_req, res) => {
+        // TODO: Fetch token from AAD and pass as invocation header.
         try {
-            const daprResponse = await client.invoker.invoke(fooServiceAppId, fooServiceSecretMethod, HttpMethod.POST, undefined);
+            const daprResponse = await client.invoker.invoke(fooServiceAppId, fooServiceFetchMethod, HttpMethod.POST, undefined);
             res.send(daprResponse);
         } catch (e) {
             console.log(e);
-            res.status(500).send(e);
+            res.status(403).send(e);
         }
     });
 

@@ -23,28 +23,14 @@ spec:
         # By default, deny requests
         default allow := false
 
-        # Allow non-protected paths for non-admin users
-        allow if {
-            not path_is_protected
-            not user_is_admin
-        }
-
         # Admins can do anything
         allow if user_is_admin
+
+        user_is_admin if claims.username in admin_users
 
         admin_users := {
             "alice",
             "bob",
-        }
-
-        protected_paths := {
-            "/secret"
-        }
-
-        user_is_admin if claims.username in admin_users
-        path_is_protected if {
-            some protected_path in protected_paths
-            contains(input.attributes.request.http.path, protected_path)
         }
 
         claims := payload {
