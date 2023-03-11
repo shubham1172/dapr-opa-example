@@ -16,11 +16,18 @@ const (
 	portEnvKey = "FOO_SERVICE_PORT"
 )
 
-func fetchHandler(ctx context.Context, in *common.InvocationEvent) (out *common.Content, err error) {
-	log.Printf("Received invocation: %v", in)
-
+func rootHandler(ctx context.Context, in *common.InvocationEvent) (out *common.Content, err error) {
 	out = &common.Content{
 		Data:        []byte("Hello from foo-service!"),
+		ContentType: "text/plain",
+	}
+
+	return out, nil
+}
+
+func secretHandler(ctx context.Context, in *common.InvocationEvent) (out *common.Content, err error) {
+	out = &common.Content{
+		Data:        []byte("Hello from foo-service! (secret handler!)"),
 		ContentType: "text/plain",
 	}
 
@@ -34,7 +41,13 @@ func main() {
 	}
 
 	s := daprd.NewService(":" + port)
-	err := s.AddServiceInvocationHandler("/fetch", fetchHandler)
+
+	err := s.AddServiceInvocationHandler("/root", rootHandler)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = s.AddServiceInvocationHandler("/secret", secretHandler)
 	if err != nil {
 		log.Fatal(err)
 	}

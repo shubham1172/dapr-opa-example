@@ -16,24 +16,41 @@ spec:
       value: |
         package http
 
+        import future.keywords.contains
         import future.keywords.if
         import future.keywords.in
 
+        # By default, deny requests
         default allow := false
 
-        allow if claims.username in admin_users
-
-        # admin_users is a set of usernames.
-        admin_users := {
-          "alice",
-          "bob",
+        # Allow non-protected paths for non-admin users
+        allow if {
+            not path_is_protected
+            not user_is_admin
         }
 
-        # set additional headers to be included in the response
-        claims := payload if {
-          v := input.attributes.request.http.headers.authorization
-          startswith(v, "Bearer ")
-          t := substring(v, count("Bearer "), -1)
-          io.jwt.verify_hs256(t, "B41BD5F462719C6D6118E673A2389")
-          [_, payload, _] := io.jwt.decode(t)
+        # Admins can do anything
+        allow if user_is_admin
+
+        admin_users := {
+            "alice",
+            "bob",
+        }
+
+        protected_paths := {
+            "/secret"
+        }
+
+        user_is_admin if claims.username in admin_users
+        path_is_protected if {
+            some protected_path in protected_paths
+            contains(input.attributes.request.http.path, protected_path)
+        }
+
+        claims := payload {
+            v := input.attributes.request.http.headers.authorization
+            startswith(v, "Bearer ")
+            t := substring(v, count("Bearer "), -1)
+            io.jwt.verify_hs256(t, "B41BD5F462719C6D6118E673A2389")
+            [_, payload, _] := io.jwt.decode(t)
         }

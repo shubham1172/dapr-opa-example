@@ -1,16 +1,40 @@
 import { DaprClient, HttpMethod } from "@dapr/dapr";
+import express from 'express';
+
+
+const app = express()
+const port = 50002
 
 const fooServiceAppId = "foo-service";
-const fooServiceMethod = "fetch";
+const fooServiceRootMethod = "root";
+const fooServiceSecretMethod = "secret";
 
 async function main() {
     const client = new DaprClient();
-    const res = await client.invoker.invoke(fooServiceAppId, fooServiceMethod, HttpMethod.POST, undefined, {
-        headers: {
-            "Authorization": "Bearer 1234"
+
+    app.get('/root', async (_req, res) => {
+        try {
+            const daprResponse = await client.invoker.invoke(fooServiceAppId, fooServiceRootMethod, HttpMethod.POST, undefined);
+            res.send(daprResponse);
+        } catch (e) {
+            console.log(e);
+            res.status(500).send(e);
         }
     });
-    console.log(res);
+
+    app.get('/secret', async (_req, res) => {
+        try {
+            const daprResponse = await client.invoker.invoke(fooServiceAppId, fooServiceSecretMethod, HttpMethod.POST, undefined);
+            res.send(daprResponse);
+        } catch (e) {
+            console.log(e);
+            res.status(500).send(e);
+        }
+    });
+
+    app.listen(port, () => {
+        console.log(`bar-service is listening on port ${port}!`)
+    })
 }
 
 main().catch((e) => {
