@@ -4,4 +4,4 @@ start-foo:
 
 .PHONY: start-bar
 start-bar:
-	dapr run --app-id bar-service --app-port 50002 --app-protocol http --log-level debug --resources-path ./bar-service/.dapr/resources --config ./bar-service/.dapr/config.yaml -- go run ./bar-service/main.go
+	dapr run --app-id bar-service --app-port 50002 --app-protocol http --log-level debug --resources-path ./bar-service/.dapr/resources --config ./bar-service/.dapr/config.yaml -- node ./bar-service/index.js

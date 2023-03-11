@@ -22,3 +22,6 @@ go.work
 
 # Dapr log files
 **/.dapr/logs/*.log
+
+# Node modules
+node_modules/
