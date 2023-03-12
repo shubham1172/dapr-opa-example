@@ -21,22 +21,14 @@ spec:
         import future.keywords.in
 
         # By default, deny requests
-        default allow := false
+        # default allow := false
+        default allow := true
 
-        # Admins can do anything
-        allow if user_is_admin
-
-        user_is_admin if claims.username in admin_users
-
-        admin_users := {
-            "alice",
-            "bob",
-        }
+        # allow if claims.appid == "693b7bfc-1128-4245-92e0-7abb1d51c3ca"
 
         claims := payload {
             v := input.attributes.request.http.headers.authorization
             startswith(v, "Bearer ")
             t := substring(v, count("Bearer "), -1)
-            io.jwt.verify_hs256(t, "B41BD5F462719C6D6118E673A2389")
             [_, payload, _] := io.jwt.decode(t)
         }
