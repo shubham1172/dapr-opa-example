@@ -37,7 +37,7 @@ if __name__ == "__main__":
     print("Invoking foo-service method 'fetch'...")
     response = requests.post(INVOKE_URL)
     print("Received response from foo-service: ",
-          response.status_code, response.headers, response.text)
+          response.status_code, response.text)
 
     # Fetch a token for the confidential client application
     token = fetch_client_credentials_token(cca)
@@ -46,4 +46,4 @@ if __name__ == "__main__":
     response = requests.post(INVOKE_URL, headers={
                              "Authorization": f"Bearer {token}"})
     print("Received response from foo-service: ",
-          response.status_code, response.headers, response.text)
+          response.status_code, response.text)
