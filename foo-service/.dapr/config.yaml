@@ -3,7 +3,7 @@ kind: Configuration
 metadata:
   name: foo-config
 spec:
-  appHttpPipeline:
+  httpPipeline:
     handlers:
       - name: opa-policy
         type: middleware.http.opa

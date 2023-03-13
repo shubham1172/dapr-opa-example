@@ -16,18 +16,17 @@ spec:
       value: |
         package http
 
-        import future.keywords.contains
         import future.keywords.if
-        import future.keywords.in
 
         # By default, deny requests
-        # default allow := false
-        default allow := true
+        default allow := false
 
-        # allow if claims.appid == "693b7bfc-1128-4245-92e0-7abb1d51c3ca"
+        # Allow requests if claims are valid.
+        # See https://learn.microsoft.com/en-us/azure/active-directory/develop/access-tokens#validate-tokens
+        allow if claims.appid == "693b7bfc-1128-4245-92e0-7abb1d51c3ca"
 
         claims := payload {
-            v := input.attributes.request.http.headers.authorization
+            v := input.request.headers["Authorization"]
             startswith(v, "Bearer ")
             t := substring(v, count("Bearer "), -1)
             [_, payload, _] := io.jwt.decode(t)
